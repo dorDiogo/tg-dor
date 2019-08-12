@@ -68,7 +68,7 @@ Graduação em Engenharia da Computação
 
 \vfill
 
-{\huge \bfseries Busca aproximada de texto baseada em índices de minimisers}
+{\huge \bfseries Busca aproximada de texto baseada em índices de minimizers}
 \\
 \medskip
 {\bfseries\itshape Proposta de Trabalho de Graduação}
@@ -78,14 +78,14 @@ Graduação em Engenharia da Computação
 \bigskip
 
 	\begin{tabular}{r p{100mm}}
-	\textbf{Aluno: } & Diogo Oliveira Rodrigues \newline(\texttt{alpgc@cin.ufpe.br}) \\ 
+	\textbf{Aluno: } & Diogo Oliveira Rodrigues \newline(\texttt{dor@cin.ufpe.br}) \\ 
 \textbf{Orientador: } & Paulo Gustavo Soares da Fonseca \newline(\texttt{paguso@cin.ufpe.br})
 \\
 	\textbf{Área: } & Teoria da Computação / Algoritmos
 \end{tabular}
 
 	\vspace{3cm}
-Recife, Agosto de 2019
+Recife, 13 de setembro de 2019
 \end{center}
 
 \clearpage 
@@ -93,7 +93,7 @@ Recife, Agosto de 2019
 \section{Resumo}
 
 Um problema algorítmico básico consiste em procurar ocorrências aproximadas de um \emph{padrão} $P$ num \emph{texto} $T$ (ou coleção de textos) de muito maior tamanho. Quando o texto é fixo, um \emph{índice} $I(T)$ é construído de forma a permitir que ocorrências de padrões sejam nele encontradas sem a necessidade de se percorrê-lo por completo. 
-Diversos índices foram propostos na literatura, com relações diversas entre espaço de memória e tempo de busca. Em aplicações com grandes volumes de dados, como em Biologia Computacional, índices completos tradicionais como árvores de sufixos ou vetores de sufixos, que representam todas as subcadeias do texto, podem requerer um espaço proibitivo. Alternativamente, alguns índices parciais recentemente propostos representam apenas um subconjunto de subcadeias de tamanho fixo $k$, chamados \emph{minimisers}. Esses índices são combinados a heurísticas de busca que permitem localizar ocorrências aproximadas de um padrão a partir de extensões de ocorrências exatas de subcadeias de tamanho fixo. Em geral, temos como características conflitantes o tamanho do índice, sua relação entre sensibilidade e especificidade, e o tempo da busca. Esses fatores são diretamente influenciados pela escolha de quais, quantos e de que tamanho serão os minimisers indexados, e de como serão combinados para a busca. O objetivo deste trabalho é estudar a relação entre esses fatores e propor algoritmos e estruturas de dados que permitam uma parametrização flexível para uma busca eficiente e com espaço reduzido. 
+Diversos índices foram propostos na literatura, com relações diversas entre espaço de memória e tempo de busca. Em aplicações com grandes volumes de dados, como em Biologia Computacional, índices completos tradicionais como árvores de sufixos ou vetores de sufixos, que representam todas as subcadeias do texto, podem requerer um espaço proibitivo. Alternativamente, alguns índices parciais recentemente propostos representam apenas um subconjunto de subcadeias de tamanho fixo $k$, chamados \emph{minimizers}. Esses índices são combinados a heurísticas de busca que permitem localizar ocorrências aproximadas de um padrão a partir de extensões de ocorrências exatas de subcadeias de tamanho fixo. Em geral, temos como características conflitantes o tamanho do índice, sua relação entre sensibilidade e especificidade, e o tempo da busca. Esses fatores são diretamente influenciados pela escolha de quais, quantos e de que tamanho serão os minimizers indexados, e de como serão combinados para a busca. O objetivo deste trabalho é estudar a relação entre esses fatores e propor algoritmos e estruturas de dados que permitam uma parametrização flexível para uma busca eficiente e com espaço reduzido. 
 
 
 
@@ -107,7 +107,7 @@ Quando o texto é fixo, um \emph{índice} $I(T)$ é construído de forma a permi
 
 Existe um compromisso entre o tamanho $k$ dos kmers indexados e o tamanho do índice, já que o número de diferentes kmers aumenta exponencialmente com $k$. Por outro lado, existe também uma relação entre $k$ e a sensibilidade e especificidade do índice. Um $k$ pequeno implica numa menor quantidade de kmers indexados, mas cada um deles terá uma maior quantidade de ocorrências, o que poderá tornar o índice muito sensível porém pouco específico, com repercussão negativa sobre o tempo da busca. Já um valor demasiado grande para $k$ implica em menos kmers indexados, mas o índice pode tornar-se pouco sensível e muito específico, levando à não-detecção de ocorrências aproximadas significativas. Escolher o valor adequado para $k$ de forma a equilibrar o tamanho do índice, sua relação entre sensibilidade e especificidade, além do tempo da busca, constitui-se portanto num importante problema.
 
-\subsection*{Minimisers}
+\subsection*{Minimizers}
 
 Considere um texto $T=t_0\cdots t_{n-1}$ de comprimento $n$ e denotemos por $T[i:j]=t_i\cdots t_{j-1}$ a subcadeia de comprimento $j-i$\/ iniciada na posição $i$. Uma tal subcadeia de comprimento $w+k-1$ corresponde a uma janela de $w$\/ kmers consecutivos. Considerando uma relação de ordem qualquer sobre o conjunto dos kmers (por exemplo, a ordem lexicográfica), chamamos o kmer mínimo dessa janela do seu $(w,k)$-\textit{minimiser}, ou simplesmente minimiser quando os valores dos parâmetros $w$ e $k$ estiverem subentendidos. A Figura~\ref{fig:minimiser} ilustra esse conceito.
 
@@ -136,7 +136,7 @@ kmers na janela:           CATGATC
 	\label{fig:minimiser}
 \end{figure}
 
-Schleimer et al \cite{Schleimer2003} e, independentemente, Roberts et al \cite{Roberts2004} propuseram a utilização dos minimisers para construção de índices de tamanho reduzido. A ideia básica é a seguinte. Primeiro, desliza-se uma janela de $w$ kmers consecutivos (ou seja, uma janela de comprimento $w+k-1$) por $T$ e, para cada uma delas, armazenamos o seu minimiser junto com as suas ocorrências numa tabela. Posteriormente, para procurar por $P$, desliza-se igualmente uma janela de mesmo tamanho sobre o padrão e, em cada posição, utiliza-se o minimiser da janela como semente. Com efeito, se $P$ e $T$ compartilharem uma mesma subsequência de comprimento $\geq w+k-1$, então o minimiser dessa subsequência deverá ser encontrado na tabela. Em outras palavras, toda ocorrência do padrão com alinhamento exato de uma subsequência de comprimento mínimo $w+k-1$ será identificada. Portanto, esse valor controla a relação entre sensibilidade e especificidade do índice.
+Schleimer et al \cite{Schleimer2003} e, independentemente, Roberts et al \cite{Roberts2004} propuseram a utilização dos minimizers para construção de índices de tamanho reduzido. A ideia básica é a seguinte. Primeiro, desliza-se uma janela de $w$ kmers consecutivos (ou seja, uma janela de comprimento $w+k-1$) por $T$ e, para cada uma delas, armazenamos o seu minimiser junto com as suas ocorrências numa tabela. Posteriormente, para procurar por $P$, desliza-se igualmente uma janela de mesmo tamanho sobre o padrão e, em cada posição, utiliza-se o minimiser da janela como semente. Com efeito, se $P$ e $T$ compartilharem uma mesma subsequência de comprimento $\geq w+k-1$, então o minimiser dessa subsequência deverá ser encontrado na tabela. Em outras palavras, toda ocorrência do padrão com alinhamento exato de uma subsequência de comprimento mínimo $w+k-1$ será identificada. Portanto, esse valor controla a relação entre sensibilidade e especificidade do índice.
 
 Nos trabalhos seminais \cite{Schleimer2003, Roberts2004} também foi demonstrado que, sob hipótese de equiprobabilidade e independência de escolha de cada kmer da janela como sendo o minimiser, na média um novo minimiser é escolhido a cada $(w+1)/2$ deslocamentos sucessivos da janela. Assim, o parâmetro $w$ controla a taxa de amostragem dos kmers indexados e logo influencia o tamanho do índice. Segue-se, como referido acima, que a eficiência e eficácia do índice dependem da criteriosa escolha dos valores de $w$ e $k$.
 
@@ -249,4 +249,3 @@ O aluno já possui alguma familiaridade com a área, tendo inclusive cursado uma
 \vfill
 
 \end{document}
-
