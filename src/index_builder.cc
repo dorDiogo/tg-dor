@@ -4,6 +4,10 @@
 
 namespace {
 
+bool IsValidBase(char c) {
+  return c == 'A' || c == 'C' || c == 'G' || c == 'T';
+}
+
 void SaveMinimizers(int_t minimizer, const std::vector<int>& positions,
                     Index* index) {
   for (const int position : positions) {
@@ -60,10 +64,12 @@ void ProcessFirstWindow(int w, int k, const Ranker& ranker, FILE* file,
 
 }  // namespace
 
-IndexBuilder::IndexBuilder(int w, int k, FILE* file) : ranker_(Ranker(k)) {
+IndexBuilder::IndexBuilder(int w, int k, FILE* file) : ranker_(k) {
   ProcessFirstWindow(w, k, ranker_, file, &k_mers_, &index_);
   char base;
-  while ((base = getc(file)) != EOF) {
-    ProcessNextBase(base, ranker_, &k_mers_, &index_);
+  while ((base = getc_unlocked(file)) != EOF) {
+    if (IsValidBase(base)) {
+      ProcessNextBase(base, ranker_, &k_mers_, &index_);
+    }
   }
 }

@@ -42,7 +42,7 @@ int MinQueue<T>::Insert(T val) {
   while (!min_queue_.empty() && min_queue_.back().first > val) {
     min_queue_.pop_back();
   }
-  min_queue_.push_back({val, insert_count_});
+  min_queue_.emplace_back(val, insert_count_);
 
   return insert_count_++;
 }
@@ -81,4 +81,4 @@ std::vector<int> MinQueue<T>::GetMinElementsInsertionTimes() {
   return insertion_times;
 }
 
-#endif
+#endif  // MIN_QUEUE_H

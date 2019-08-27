@@ -19,9 +19,6 @@ class IndexBuilder {
   // Sequence ranker.
   const Ranker ranker_;
 
-  // Position on file.
-  int current_position_ = 0;
-
   // Queue of k-mers within window with minimum operation.
   MinQueue<int_t> k_mers_;
 
@@ -29,4 +26,4 @@ class IndexBuilder {
   Index index_;
 };
 
-#endif
+#endif  // INDEX_BUILDER_H

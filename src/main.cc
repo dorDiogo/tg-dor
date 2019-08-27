@@ -32,8 +32,8 @@ int main() {
   if (file == NULL) {
     return -1;
   }
-  int w = 11;
-  int k = 3;
+  int w = 10;
+  int k = 7;
 
   IndexBuilder index_builder(w, k, file);
   Index index = index_builder.GetIndex();

@@ -2,7 +2,7 @@ OBJS = index_builder.o ranker.o min_queue.o
 CC = c++-8
 CFLAGS = -c
 LFLAGS = 
-VFLAGS = -std=c++11 -flto -O2
+VFLAGS = -std=c++11 -O2
 
 all: main clean
 	
@@ -15,3 +15,4 @@ main: $(OBJS)
 
 clean:
 	@rm -f *.o
+	
