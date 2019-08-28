@@ -12,12 +12,15 @@ using Index = __gnu_pbds::gp_hash_table<int_t, std::vector<int>>;
 
 class IndexBuilder {
  public:
-  IndexBuilder(int w, int k, FILE* file);
+  IndexBuilder(const int w, const int k, FILE* file);
   Index GetIndex() { return index_; }
 
  private:
   // Sequence ranker.
   const Ranker ranker_;
+
+  // How many bases have been processed.
+  int processed_bases_ = 0;
 
   // Queue of k-mers within window with minimum operation.
   MinQueue<int_t> k_mers_;

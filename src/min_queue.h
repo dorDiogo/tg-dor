@@ -9,7 +9,7 @@ template <class T>
 class MinQueue {
  public:
   // Inserts element. Returns insertion time.
-  int Insert(T val);
+  void Insert(const T& val);
 
   // Returns smallest element.
   T Min() const;
@@ -17,43 +17,38 @@ class MinQueue {
   // Returns last element.
   T Back() const;
 
-  // Returns the insertion times of every element that is equal to the minimum.
-  std::vector<int> GetMinElementsInsertionTimes();
+  // Returns the position in the queue of every element that is equal to the
+  // minimum.
+  std::vector<int> GetMinElementsPositions();
 
   // Removes next element.
   void Pop();
 
  private:
   // Deque that keeps the queue in non-decreasing order.
-  // (u, v) => u is the queue element, and v is how many Insert()'s had been
-  // called before this element was inserted.
+  // (u, v) => u is the queue element, and v is how many elements were popped
+  // between this element and its antecessor from the deque but not from the
+  // real queue.
   std::deque<std::pair<T, int>> min_queue_;
-
-  // Counts how many Pop()'s have been called. Used to check if it is actually
-  // time to pop min_queue_.front().
-  int pop_count_ = 0;
-
-  // Counts how many Insert()'s have been called.
-  int insert_count_ = 0;
 };
 
 template <class T>
-int MinQueue<T>::Insert(T val) {
+void MinQueue<T>::Insert(const T& val) {
+  int deleted_elements = 0;
   while (!min_queue_.empty() && min_queue_.back().first > val) {
+    deleted_elements += 1 + min_queue_.back().second;
     min_queue_.pop_back();
   }
-  min_queue_.emplace_back(val, insert_count_);
-
-  return insert_count_++;
+  min_queue_.emplace_back(val, deleted_elements);
 }
 
 template <class T>
 void MinQueue<T>::Pop() {
-  if (min_queue_.front().second == pop_count_) {
+  if (min_queue_.front().second == 0) {
     min_queue_.pop_front();
+  } else {
+    --min_queue_.front().second;
   }
-
-  ++pop_count_;
 }
 
 template <class T>
@@ -67,18 +62,19 @@ T MinQueue<T>::Back() const {
 }
 
 template <class T>
-std::vector<int> MinQueue<T>::GetMinElementsInsertionTimes() {
-  std::vector<int> insertion_times;
+std::vector<int> MinQueue<T>::GetMinElementsPositions() {
+  std::vector<int> positions;
   int min_value = Min();
-  for (const auto& it : min_queue_) {
-    T value = it.first;
-    int insertion_time = it.second;
+  int deleted_elements = 0;
+  for (int i = 0; i < min_queue_.size(); ++i) {
+    T value = min_queue_[i].first;
+    deleted_elements += min_queue_[i].second;
     if (value != min_value) {
       break;
     }
-    insertion_times.push_back(insertion_time);
+    positions.push_back(i + deleted_elements);
   }
-  return insertion_times;
+  return positions;
 }
 
 #endif  // MIN_QUEUE_H

@@ -20,13 +20,13 @@ class Ranker {
 
   // Receives rank of a k-mer t as hint. Computes rank of a new k-mer equal to
   // t[1:] + c.
-  int_t GetKMerRank(int_t hint_rank, char c) const;
+  int_t GetKMerRank(const int_t hint_rank, const char c) const;
 
  private:
   // 4^(k - 1), used to get rank via hint.
   const int_t power_of_k_;
 
-  int base_rank[int('T')];
+  int base_rank[int('T') + 1];
 };
 
 #endif  // RANKER_H
