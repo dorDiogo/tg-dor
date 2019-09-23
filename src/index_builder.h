@@ -2,20 +2,32 @@
 #define INDEX_BUILDER_H
 
 #include <ext/pb_ds/assoc_container.hpp>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "min_queue.h"
 #include "ranker.h"
 
-using Index = __gnu_pbds::gp_hash_table<int_t, std::vector<int>>;
+struct CmpHash {
+  int_t operator()(int_t x) const { return x; }
+};
+
+using Index = __gnu_pbds::gp_hash_table<int_t, std::vector<int>, CmpHash>;
 
 class IndexBuilder {
  public:
-  IndexBuilder(const int w, const int k, FILE* file);
-  Index GetIndex() { return index_; }
+  IndexBuilder(const int w, const int k);
+  void AddBase(char base);
+  Index GetIndex() const { return index_; }
 
  private:
+  // Window size and minimizer size.
+  int w_, k_;
+
+  // First window of the text.
+  std::string first_window_;
+
   // Sequence ranker.
   const Ranker ranker_;
 

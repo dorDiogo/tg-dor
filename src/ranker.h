@@ -3,7 +3,7 @@
 
 #include <string>
 
-typedef long long int_t;
+typedef __int128_t int_t;
 
 class Ranker {
  public:
