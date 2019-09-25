@@ -13,7 +13,7 @@ struct CmpHash {
   int_t operator()(int_t x) const { return x; }
 };
 
-using Index = __gnu_pbds::gp_hash_table<int_t, std::vector<int>, CmpHash>;
+using Index = __gnu_pbds::gp_hash_table<int_t, std::vector<long long>, CmpHash>;
 
 class IndexBuilder {
  public:
@@ -32,7 +32,7 @@ class IndexBuilder {
   const Ranker ranker_;
 
   // How many bases have been processed.
-  int processed_bases_ = 0;
+  long long processed_bases_ = 0;
 
   // Queue of k-mers within window with minimum operation.
   MinQueue<int_t> k_mers_;

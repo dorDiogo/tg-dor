@@ -6,15 +6,17 @@ namespace {
 
 void SaveMinimizers(const int_t minimizer,
                     const std::vector<int>& positions_in_window,
-                    const int window_start_position, Index* index) {
+                    const long long window_start_position, Index* index) {
   for (const int position : positions_in_window) {
     (*index)[minimizer].push_back(window_start_position + position);
   }
 }
 
-void ProcessNextBase(const char base, const int k, const int base_position,
-                     const int window_start_position, const Ranker& ranker,
-                     MinQueue<int_t>* k_mers, Index* index) {
+void ProcessNextBase(const char base, const int k,
+                     const long long base_position,
+                     const long long window_start_position,
+                     const Ranker& ranker, MinQueue<int_t>* k_mers,
+                     Index* index) {
   // Get new k-mer rank from the last k-mer inserted. They are equal except for
   // the first and last base.
   const int_t k_mer = ranker.GetKMerRank(k_mers->Back(), base);
