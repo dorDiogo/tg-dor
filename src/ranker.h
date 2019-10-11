@@ -3,16 +3,16 @@
 
 #include <string>
 
-typedef __int128_t int_t;
+typedef uint64_t int_t;
 
 class Ranker {
  public:
   // Size of k-mers to be ranked.
   Ranker(int k) : power_of_k_(1 << (2 * (k - 1))) {
-    base_rank['A'] = 0;
-    base_rank['C'] = 1;
-    base_rank['G'] = 2;
-    base_rank['T'] = 3;
+    base_rank[(int)'A'] = 0;
+    base_rank[(int)'C'] = 1;
+    base_rank[(int)'G'] = 2;
+    base_rank[(int)'T'] = 3;
   }
 
   // Computes ranking of a sequence.

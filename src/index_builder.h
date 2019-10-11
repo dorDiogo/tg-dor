@@ -1,19 +1,15 @@
 #ifndef INDEX_BUILDER_H
 #define INDEX_BUILDER_H
 
-#include <ext/pb_ds/assoc_container.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "absl/container/flat_hash_map.h"
 #include "min_queue.h"
 #include "ranker.h"
 
-struct CmpHash {
-  int_t operator()(int_t x) const { return x; }
-};
-
-using Index = __gnu_pbds::gp_hash_table<int_t, std::vector<long long>, CmpHash>;
+using Index = absl::flat_hash_map<int_t, std::vector<uint64_t>>;
 
 class IndexBuilder {
  public:

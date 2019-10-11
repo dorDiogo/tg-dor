@@ -49,7 +49,6 @@ void ProcessFirstWindow(const std::string& window, const int w, const int k,
   k_mers->Insert(first_k_mer);
 
   // Process remaining kmers from the window.
-  int_t mininimizer = first_k_mer;
   for (int i = k; i < w; ++i) {
     const int_t k_mer = ranker.GetKMerRank(k_mers->Back(), window[i]);
     k_mers->Insert(k_mer);

@@ -7,10 +7,7 @@
 
 class SegmentTree {
  public:
-  SegmentTree(int n) : n_(n) {
-    tree_ =
-        std::vector<long long>(n_ + n_, std::numeric_limits<long long>::min());
-  }
+  SegmentTree(int n) : n_(n) { tree_ = std::vector<long long>(n_ + n_, 0); }
 
   // Updates value of node at pos to v, if v is greater than the current value.
   void update(int pos, long long v);
