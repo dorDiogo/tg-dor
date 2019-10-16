@@ -1,5 +1,7 @@
 #include "index_builder.h"
 
+#include <iostream>
+
 #include "ranker.h"
 
 namespace {

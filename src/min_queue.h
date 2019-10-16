@@ -64,7 +64,7 @@ T MinQueue<T>::Back() const {
 template <class T>
 std::vector<int> MinQueue<T>::GetMinElementsPositions() {
   std::vector<int> positions;
-  int min_value = Min();
+  T min_value = Min();
   int deleted_elements = 0;
   for (int i = 0; i < min_queue_.size(); ++i) {
     T value = min_queue_[i].first;

@@ -9,13 +9,13 @@
 #include "min_queue.h"
 #include "ranker.h"
 
-using Index = absl::flat_hash_map<int_t, std::vector<uint64_t>>;
+using Index = absl::flat_hash_map<int_t, std::vector<int64_t>>;
 
 class IndexBuilder {
  public:
   IndexBuilder(const int w, const int k);
   void AddBase(char base);
-  Index GetIndex() const { return index_; }
+  const Index& GetIndex() const { return index_; }
 
  private:
   // Window size and minimizer size.
@@ -35,6 +35,8 @@ class IndexBuilder {
 
   // Maps minimizers to their occurrences.
   Index index_;
+
+  friend class FingerprintBuilder;
 };
 
 #endif  // INDEX_BUILDER_H

@@ -8,7 +8,7 @@ typedef uint64_t int_t;
 class Ranker {
  public:
   // Size of k-mers to be ranked.
-  Ranker(int k) : power_of_k_(1 << (2 * (k - 1))) {
+  Ranker(int k) : power_of_k_(int_t(1) << (2 * (k - 1))) {
     base_rank[(int)'A'] = 0;
     base_rank[(int)'C'] = 1;
     base_rank[(int)'G'] = 2;

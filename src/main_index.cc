@@ -16,6 +16,7 @@ ABSL_FLAG(std::vector<std::string>, K,
           "comma-separated list of k-mer sizes");
 ABSL_FLAG(std::string, input_file, "", "text file for indexing");
 ABSL_FLAG(std::string, output_file, "", "file for dumping index");
+ABSL_FLAG(bool, debug, false, "whether should output debug info");
 
 std::string KMerToString(int_t k_mer, int k) {
   std::string sequence;
@@ -34,7 +35,7 @@ void PrintIndex(const Index& index, int k) {
     const auto& occurrences = it.second;
     printf("%s (%llu): ", KMerToString(k_mer, k).c_str(), k_mer);
     for (const auto& occurrence : occurrences) {
-      printf("%llu ", (uint64_t)occurrence);
+      printf("%lld ", (int64_t)occurrence);
     }
     puts("");
   }
@@ -60,11 +61,10 @@ void OutputIndex(const Index& index, FILE* file) {
   Write(index.size(), file);
   for (const auto& it : index) {
     const int_t k_mer = it.first;
-    const std::vector<uint64_t>& occurrences = it.second;
-    int occurrences_size = occurrences.size();
+    const std::vector<int64_t>& occurrences = it.second;
     Write(k_mer, file);
-    Write(occurrences_size, file);
-    for (const uint64_t occurrence : occurrences) {
+    Write(occurrences.size(), file);
+    for (const int64_t occurrence : occurrences) {
       Write(occurrence, file);
     }
   }
@@ -73,12 +73,14 @@ void OutputIndex(const Index& index, FILE* file) {
 int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
 
+  int w = absl::GetFlag(FLAGS_w);
+
   std::vector<std::string> K_string = absl::GetFlag(FLAGS_K);
   std::vector<int> K;
   for (const std::string& k_string : K_string) {
     K.push_back(atoi(k_string.c_str()));
   }
-  int w = absl::GetFlag(FLAGS_w);
+  sort(K.rbegin(), K.rend());
 
   FILE* input_file = fopen(absl::GetFlag(FLAGS_input_file).c_str(), "r");
   FILE* output_file = fopen(absl::GetFlag(FLAGS_output_file).c_str(), "w");
@@ -107,8 +109,8 @@ int main(int argc, char* argv[]) {
     Write(k, output_file);
   }
   for (int i = 0; i < K.size(); ++i) {
-    Index index = index_builders[i].GetIndex();
-    // PrintIndex(index, K[i]);
+    const Index& index = index_builders[i].GetIndex();
+    if (absl::GetFlag(FLAGS_debug)) PrintIndex(index, K[i]);
     OutputIndex(index, output_file);
   }
 
