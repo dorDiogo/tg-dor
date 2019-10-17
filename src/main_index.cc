@@ -33,11 +33,11 @@ void PrintIndex(const Index& index, int k) {
   for (const auto& it : index) {
     const int_t k_mer = it.first;
     const auto& occurrences = it.second;
-    printf("%s (%llu): ", KMerToString(k_mer, k).c_str(), k_mer);
+    std::cout << KMerToString(k_mer, k) << " (" << k_mer << "): ";
     for (const auto& occurrence : occurrences) {
-      printf("%lld ", (int64_t)occurrence);
+      std::cout << occurrence << ' ';
     }
-    puts("");
+    std::cout << std::endl;
   }
 }
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
   for (const int k : K) {
     Write(k, output_file);
   }
-  for (int i = 0; i < K.size(); ++i) {
+  for (int i = 0; i < (int)K.size(); ++i) {
     const Index& index = index_builders[i].GetIndex();
     if (absl::GetFlag(FLAGS_debug)) PrintIndex(index, K[i]);
     OutputIndex(index, output_file);

@@ -66,7 +66,7 @@ std::vector<int> MinQueue<T>::GetMinElementsPositions() {
   std::vector<int> positions;
   T min_value = Min();
   int deleted_elements = 0;
-  for (int i = 0; i < min_queue_.size(); ++i) {
+  for (int i = 0; i < (int)min_queue_.size(); ++i) {
     T value = min_queue_[i].first;
     deleted_elements += min_queue_[i].second;
     if (value != min_value) {

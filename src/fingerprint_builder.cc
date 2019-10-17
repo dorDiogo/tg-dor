@@ -24,7 +24,7 @@ std::vector<int64_t> ExtractOccurrencesFromWindow(
 
 }  // namespace
 
-FingerprintBuilder::FingerprintBuilder(std::string_view pattern,
+FingerprintBuilder::FingerprintBuilder(const std::string& pattern,
                                        const std::vector<Index>& indexes, int w,
                                        const std::vector<int>& K) {
   std::vector<IndexBuilder> pattern_builders;
@@ -37,7 +37,7 @@ FingerprintBuilder::FingerprintBuilder(std::string_view pattern,
     }
     // Get fingerprints from longest minimizer of current window that occurs in
     // the text.
-    for (int i = 0; i < pattern_builders.size(); ++i) {
+    for (int i = 0; i < (int)pattern_builders.size(); ++i) {
       IndexBuilder& pattern_builder = pattern_builders[i];
       const Index& index = indexes[i];
       if (pattern_builder.processed_bases_ < pattern_builder.w_) continue;

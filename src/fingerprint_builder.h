@@ -26,7 +26,7 @@ struct Fingerprint {
 
 class FingerprintBuilder {
  public:
-  FingerprintBuilder(std::string_view pattern,
+  FingerprintBuilder(const std::string& pattern,
                      const std::vector<Index>& indexes, int w,
                      const std::vector<int>& K);
   const std::vector<Fingerprint>& GetFingerprint() const {

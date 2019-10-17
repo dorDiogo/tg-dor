@@ -70,9 +70,9 @@ IndexBuilder::IndexBuilder(const int w, const int k)
 
 void IndexBuilder::AddBase(char base) {
   ++processed_bases_;
-  if (first_window_.size() < w_) {
+  if ((int)first_window_.size() < w_) {
     first_window_ += base;
-    if (first_window_.size() == w_) {
+    if ((int)first_window_.size() == w_) {
       ProcessFirstWindow(first_window_, w_, k_, ranker_, &k_mers_, &index_);
     }
   } else {

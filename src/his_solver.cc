@@ -6,7 +6,7 @@
 #include <limits>
 #include <vector>
 
-void SegmentTree::update(int pos, long long v) {
+void SegmentTree::update(int pos, int64_t v) {
   pos += n_;
   if (tree_[pos] >= v) return;
   tree_[pos] = v;
@@ -15,8 +15,8 @@ void SegmentTree::update(int pos, long long v) {
   }
 }
 
-long long SegmentTree::query(int l, int r) {
-  long long ans = 0;
+int64_t SegmentTree::query(int l, int r) {
+  int64_t ans = 0;
   for (l += n_, r += n_; l < r; l >>= 1, r >>= 1) {
     if (l & 1) ans = std::max(ans, tree_[l++]);
     if (r & 1) ans = std::max(ans, tree_[--r]);
@@ -24,7 +24,7 @@ long long SegmentTree::query(int l, int r) {
   return ans;
 }
 
-His2DSolver::His2DSolver(std::vector<std::pair<long long, long long>> v,
+His2DSolver::His2DSolver(std::vector<std::pair<int64_t, int64_t>> v,
                          std::vector<int> weight, const int epsilon)
     : v_(v),
       weight_(weight),
@@ -36,8 +36,8 @@ His2DSolver::His2DSolver(std::vector<std::pair<long long, long long>> v,
 std::vector<int> His2DSolver::His() {
   auto max_element = std::max_element(dp_.begin(), dp_.end());
   int max_element_index = max_element - dp_.begin();
-  std::pair<long long, long long> last = v_[max_element_index];
-  long long remaining_weight = *max_element - weight_[max_element_index];
+  std::pair<int64_t, int64_t> last = v_[max_element_index];
+  int64_t remaining_weight = *max_element - weight_[max_element_index];
   std::vector<int> his({max_element_index});
   for (int i = max_element_index - 1; i >= 0; --i) {
     if (dp_[i] == remaining_weight && v_[i].first < last.first &&
@@ -63,7 +63,7 @@ void His2DSolver::Solve(int l, int r) {  // [l, r)
 void His2DSolver::Propagate(int l, int r) {
   int m = (l + r) / 2;
   std::vector<std::pair<int, bool>> sorted_segment = Sort(l, r);
-  std::vector<long long> sorted_first_half_y(m - l);
+  std::vector<int64_t> sorted_first_half_y(m - l);
   for (int i = l; i < m; ++i) {
     sorted_first_half_y[i - l] = v_[i].second;
   }
