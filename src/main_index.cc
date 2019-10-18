@@ -1,6 +1,8 @@
 #include "index_builder.h"
 
+#include <omp.h>
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -10,7 +12,7 @@
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 
-ABSL_FLAG(int32_t, w, 10, "window size");
+ABSL_FLAG(int32_t, w, 50, "window size");
 ABSL_FLAG(std::vector<std::string>, K,
           std::vector<std::string>({"8", "16", "32"}),
           "comma-separated list of k-mer sizes");
@@ -56,6 +58,23 @@ void Write(uint64_t x, FILE* file) {
   }
 }
 
+void ReadBuffer(FILE* file, std::string* buffer) {
+  char ch;
+  while (buffer->size() < buffer->capacity() && !feof(file)) {
+    ch = getc_unlocked(file);
+    if (ch != 'A' && ch != 'C' && ch != 'G' && ch != 'T') continue;
+    *buffer += ch;
+  }
+}
+
+void ProcessBuffer(const std::string& buffer,
+                   std::vector<IndexBuilder>* index_builders) {
+#pragma omp parallel for
+  for (int i = 0; i < (int)index_builders->size(); ++i) {
+    (*index_builders)[i].AddBases(buffer);
+  }
+}
+
 void OutputIndex(const Index& index, FILE* file) {
   if (file == NULL) return;
   Write(index.size(), file);
@@ -94,14 +113,20 @@ int main(int argc, char* argv[]) {
     index_builders.push_back(IndexBuilder(w, k));
   }
 
-  char ch;
-  while ((ch = getc_unlocked(input_file)) != EOF) {
-    if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T') {
-      for (auto& index_builder : index_builders) {
-        index_builder.AddBase(ch);
-      }
-    }
+  std::string buffer;
+  buffer.reserve(1e9);
+  std::chrono::milliseconds process_time(0);
+  while (!feof(input_file)) {
+    buffer.resize(0);
+    ReadBuffer(input_file, &buffer);
+    auto start = std::chrono::system_clock::now();
+    ProcessBuffer(buffer, &index_builders);
+    auto end = std::chrono::system_clock::now();
+    process_time +=
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
   }
+  std::cout << "process time:" << process_time.count() / 1000. << "s"
+            << std::endl;
 
   Write(w, output_file);
   Write(K.size(), output_file);

@@ -80,3 +80,9 @@ void IndexBuilder::AddBase(char base) {
                     ranker_, &k_mers_, &index_);
   }
 }
+
+void IndexBuilder::AddBases(const std::string& bases) {
+  for (const char base : bases) {
+    AddBase(base);
+  }
+}

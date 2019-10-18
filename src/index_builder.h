@@ -15,6 +15,7 @@ class IndexBuilder {
  public:
   IndexBuilder(const int w, const int k);
   void AddBase(char base);
+  void AddBases(const std::string& bases);
   const Index& GetIndex() const { return index_; }
 
  private:

@@ -73,3 +73,8 @@ cc_binary(
         "@com_google_absl//absl/flags:parse",
     ],
 )
+
+cc_binary(
+    name = "test",
+    srcs = ["test.cc"],
+)
