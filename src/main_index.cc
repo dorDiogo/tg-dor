@@ -1,5 +1,3 @@
-#include "index_builder.h"
-
 #include <omp.h>
 #include <algorithm>
 #include <chrono>
@@ -11,6 +9,9 @@
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
+
+#include "debugger.h"
+#include "index_builder.h"
 
 ABSL_FLAG(int32_t, w, 50, "window size");
 ABSL_FLAG(std::vector<std::string>, K,
@@ -135,8 +136,10 @@ int main(int argc, char* argv[]) {
   }
   for (int i = 0; i < (int)K.size(); ++i) {
     const Index& index = index_builders[i].GetIndex();
-    if (absl::GetFlag(FLAGS_debug)) PrintIndex(index, K[i]);
-    OutputIndex(index, output_file);
+    if (!absl::GetFlag(FLAGS_debug)) OutputIndex(index, output_file);
+  }
+  if (absl::GetFlag(FLAGS_debug)) {
+    DebugIndexData(index_builders, K);
   }
 
   fclose(input_file);

@@ -17,6 +17,7 @@ class IndexBuilder {
   void AddBase(char base);
   void AddBases(const std::string& bases);
   const Index& GetIndex() const { return index_; }
+  const int64_t GetProcessedBases() const { return processed_bases_; }
 
  private:
   // Window size and minimizer size.

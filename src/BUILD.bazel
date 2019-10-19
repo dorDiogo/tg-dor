@@ -52,11 +52,21 @@ cc_library(
     hdrs = ["his_solver.h"],
 )
 
+cc_library(
+    name = "debugger",
+    srcs = ["debugger.cc"],
+    hdrs = ["debugger.h"],
+    deps = [
+        ":index_builder",
+    ],
+)
+
 cc_binary(
     name = "main_index",
     srcs = ["main_index.cc"],
     deps = [
         ":index_builder",
+        ":debugger",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:parse",
     ],
