@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
-#include <set>
 #include <vector>
 
 #include "index_builder.h"
@@ -11,7 +10,6 @@
 void DebugIndexData(const std::vector<IndexBuilder>& index_builders,
                     const std::vector<int>& K) {
   if (K.size() != index_builders.size() || K.empty()) return;
-  // std::set<int64_t> covered_positions;
   int64_t total_positions = index_builders[0].GetProcessedBases();
   std::vector<bool> covered_positions(total_positions, false);
   std::cout << std::fixed << std::setprecision(5);
@@ -33,8 +31,6 @@ void DebugIndexData(const std::vector<IndexBuilder>& index_builders,
         }
       }
     }
-    // covered_positions.insert(covered_positions_per_k.begin(),
-    //                         covered_positions_per_k.end());
     int64_t total_covered_positions_per_k = (double)std::count(
         covered_positions_per_k.begin(), covered_positions_per_k.end(), true);
 
