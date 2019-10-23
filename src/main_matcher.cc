@@ -9,37 +9,10 @@
 #include "fingerprint_builder.h"
 #include "his_solver.h"
 #include "index_builder.h"
+#include "utils.h"
 
 ABSL_FLAG(std::string, index_file, "", "index file");
 ABSL_FLAG(std::string, input_file, "", "patterns file");
-
-uint64_t Read(FILE* file) {
-  uint64_t x = 0;
-  int c = getc_unlocked(file);
-  for (; !isdigit(c); c = getc_unlocked(file)) {
-  }
-  for (; isdigit(c); c = getc_unlocked(file)) {
-    x = x * 10 + c - '0';
-  }
-  return x;
-}
-
-Index ReadIndex(FILE* file) {
-  int64_t index_size = Read(file);
-  Index index;
-  index.reserve(index_size);
-
-  for (int64_t i = 0; i < index_size; ++i) {
-    int_t k_mer = Read(file);
-    int occurrences_size = Read(file);
-    std::vector<int64_t>& occurrences = index[k_mer];
-    occurrences.resize(occurrences_size);
-    for (int64_t& occurrence : occurrences) {
-      occurrence = Read(file);
-    }
-  }
-  return index;
-}
 
 int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
@@ -55,24 +28,12 @@ int main(int argc, char* argv[]) {
   for (auto& k : K) {
     k = Read(index_file);
   }
-
   std::vector<Index> indexes(K.size());
   for (auto& index : indexes) {
     index = ReadIndex(index_file);
   }
 
-  std::vector<IndexBuilder> pattern_index_builders;
-  for (int k : K) {
-    pattern_index_builders.push_back(IndexBuilder(w, k));
-  }
-
-  char ch;
-  std::string pattern;
-  while ((ch = getc_unlocked(input_file)) != EOF) {
-    if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T') {
-      pattern += ch;
-    }
-  }
+  std::string pattern = ReadPattern(input_file);
 
   std::vector<Fingerprint> fingerprints =
       FingerprintBuilder(pattern, indexes, w, K).GetFingerprint();
@@ -88,7 +49,6 @@ int main(int argc, char* argv[]) {
 
   His2DSolver his_solver(seeds, weights, 10);
   std::vector<int> his = his_solver.His();
-  std::cout << ((double)his_solver.Weight() / his.size()) << std::endl;
   for (const int x : his) {
     std::cout << fingerprints[x].text_position << ' '
               << fingerprints[x].pattern_position << ' '
