@@ -8,8 +8,9 @@
 #include "index_builder.h"
 
 void DebugIndexData(const std::vector<IndexBuilder>& index_builders,
-                    const std::vector<int>& K) {
+                    const int w, const std::vector<int>& K) {
   if (K.size() != index_builders.size() || K.empty()) return;
+  std::cout << "w: " << w << std::endl;
   int64_t total_positions = index_builders[0].GetProcessedBases();
   std::vector<bool> covered_positions(total_positions, false);
   std::cout << std::fixed << std::setprecision(5);
@@ -47,12 +48,12 @@ void DebugIndexData(const std::vector<IndexBuilder>& index_builders,
               << std::endl;
   }
 
+  if (K.size() == 1) return;
+  int64_t total_covered_positions = (double)std::count(
+      covered_positions.begin(), covered_positions.end(), true);
   std::cout << "---------------" << std::endl;
   std::cout << "Combined k" << std::endl;
-  std::cout << "Text coverage: " << covered_positions.size() << "/"
+  std::cout << "Text coverage: " << total_covered_positions << "/"
             << total_positions << " = "
-            << (double)std::count(covered_positions.begin(),
-                                  covered_positions.end(), true) /
-                   total_positions
-            << std::endl;
+            << (double)total_covered_positions / total_positions << std::endl;
 }

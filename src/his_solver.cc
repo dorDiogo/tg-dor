@@ -34,6 +34,8 @@ His2DSolver::His2DSolver(std::vector<std::pair<int64_t, int64_t>> v,
 }
 
 std::vector<int> His2DSolver::His() {
+  if (v_.empty()) return {};
+
   auto max_element = std::max_element(dp_.begin(), dp_.end());
   int max_element_index = max_element - dp_.begin();
   std::pair<int64_t, int64_t> last = v_[max_element_index];

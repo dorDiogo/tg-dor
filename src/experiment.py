@@ -5,13 +5,16 @@ import random
 
 def Run():
     binary = f'{base_path}/bazel-out/k8-opt/bin/main.runfiles/__main__/main'
+    args = [binary, f'-patterns_file={patterns_filename}',
+            f'-text_file={text_filename}', f'-epsilon={epsilon}',
+            f'-w={w}', f'-K={K}']
+    stdout, stderr = subprocess.Popen(
+        args=args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE).communicate()
+    print(stderr.decode())
 
-    text_filename = f'{base_path}/../data/dna.50MB'
-
-    output = subprocess.check_output(
-        [binary, f'-patterns_file={patterns_filename}', f'-text_file={text_filename}', f'-epsilon={epsilon}'])
-
-    l = list(map(int, output.split()))
+    l = list(map(int, stdout.split()))
     hises = []
     l_len = len(l)
     i = 0
@@ -42,34 +45,33 @@ def GetRandomChar():
 
 def Mutate(pattern):
     mutated_pattern = ""
-    last_operation = ""
-    bases = 'ACGT'
-    bases_size = len(bases)
-    for ch in pattern:
-        r = random.uniform(0, 1)
-        if last_operation == 'DELETE':
-            if r <= prob_extend_delete:
-                continue
-        elif last_operation == 'INSERT':
-            if r <= prob_extend_insert:
-                mutated_pattern += GetRandomChar()
-        elif random.uniform(0, 1) <= prob_error:
+    i = 0
+    pattern_len = len(pattern)
+    while i < pattern_len:
+        ch = pattern[i]
+        if random.uniform(0, 1) <= prob_error:
             operation = GetRandomOperation()
             if operation == 'DELETE':
-                continue
+                i += 1
+                while random.uniform(0, 1) <= prob_extend_delete:
+                    i += 1
             elif operation == 'INSERT':
                 mutated_pattern += GetRandomChar()
+                while random.uniform(0, 1) <= prob_extend_insert:
+                    mutated_pattern += GetRandomChar()
             elif operation == 'REPLACE':
                 mutated_ch = ch
                 while mutated_ch == ch:
                     mutated_ch = GetRandomChar()
                 mutated_pattern += mutated_ch
+                i += 1
         else:
             mutated_pattern += ch
+            i += 1
     return mutated_pattern
 
 
-def GeneratePatterns(text_filename):
+def GeneratePatterns():
     text_file = open(text_filename, "r")
     dirty_text = text_file.read()
     text_file.close()
@@ -95,22 +97,47 @@ def SavePatternsToFile(patterns_filename, patterns):
     patterns_file.close()
 
 
-def Analyze():
+def CountTrue(v):
     count = 0
-    for i, his in enumerate(hises):
-        len_his = len(his)
-        if len(his) == 0:
-            continue
-        (text_pos, pat_pos, _) = his[len_his // 2]
-        if (text_pos - pat_pos) >= start_positions[i] - epsilon and (text_pos - pat_pos) <= start_positions[i] + pattern_size - epsilon:
+    for b in v:
+        if b == True:
             count += 1
-        else:
-            print((i, text_pos, pat_pos, start_positions[i]))
     return count
 
 
+def Analyze():
+    count = 0
+    total_covered_positions = 0
+    for i, his in enumerate(hises):
+        len_his = len(his)
+        if len_his == 0:
+            continue
+        start_pos = start_positions[i]
+        end_pos = start_positions[i] + pattern_size
+
+        # Calculate coverage just from minimizers
+        covered_positions = bytearray(pattern_size)
+        for text_pos, pat_pos, weight in his:
+            for j in range(weight):
+                position = text_pos + j
+                if position >= start_pos and position < end_pos:
+                    covered_positions[position - start_pos] = True
+
+        (text_pos, pat_pos, _) = his[len_his // 2]
+        if text_pos >= start_pos and text_pos < end_pos:
+            count += 1
+            total_covered_positions += CountTrue(covered_positions)
+        # else:
+            #print(his, CountTrue(covered_positions), i)
+    print(
+        f"Average coverage per correctly matched pattern: {total_covered_positions/count}")
+    print(f"Correctly matched patterns: {count}/{experiments}")
+
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+
 random.seed(233860659)
-experiments = 100
+experiments = 1000
 pattern_size = 1000
 prob_error = 0.10
 prob_delete = 1/3
@@ -119,12 +146,20 @@ prob_replace = 1/3
 prob_extend_insert = 1/3
 prob_extend_delete = 1/3
 epsilon = int(pattern_size * abs(prob_insert - prob_delete) + 5)
-base_path = os.path.dirname(os.path.abspath(__file__))
+text_filename = f'{base_path}/../data/dna.50MB'
 
-patterns, start_positions = GeneratePatterns(f'{base_path}/../data/dna.50MB')
+
+patterns, start_positions = GeneratePatterns()
 patterns_filename = f'{base_path}/../data/patterns'
 SavePatternsToFile(patterns_filename, patterns)
 
-hises = Run()
 
-print(Analyze())
+w = "10"
+K = ""
+Ks = ["10,15"]
+for k in Ks:
+    w = 100
+    K = k
+    print(K)
+    hises = Run()
+    Analyze()

@@ -22,6 +22,8 @@ ABSL_FLAG(std::string, output_file, "", "file for dumping index");
 ABSL_FLAG(bool, debug, false, "whether should print debug info to stdout");
 ABSL_FLAG(bool, dump, false, "whether should dump index to --output_file");
 ABSL_FLAG(bool, print, false, "whether should print index to stdout");
+ABSL_FLAG(bool, variable_hash, true,
+          "whether should use different hash for each k");
 
 int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
@@ -49,7 +51,8 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  std::vector<IndexBuilder> index_builders = IndexFile(w, K, debug, input_file);
+  std::vector<IndexBuilder> index_builders =
+      IndexFile(w, K, debug, absl::GetFlag(FLAGS_variable_hash), input_file);
 
   if (dump) {
     Write(w, output_file);
@@ -71,10 +74,10 @@ int main(int argc, char* argv[]) {
   }
 
   if (debug) {
-    DebugIndexData(index_builders, K);
+    DebugIndexData(index_builders, w, K);
   }
 
   fclose(input_file);
-  fclose(output_file);
+  if (output_file != NULL) fclose(output_file);
   return 0;
 }

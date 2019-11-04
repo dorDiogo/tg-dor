@@ -16,7 +16,8 @@ void PrintIndex(const Index& index, int k);
 void Write(uint64_t x, FILE* file);
 
 std::vector<IndexBuilder> IndexFile(int w, const std::vector<int>& K,
-                                    bool debug, FILE* input_file);
+                                    bool debug, bool variable_hash,
+                                    FILE* input_file);
 
 std::string ReadPattern(FILE* file);
 

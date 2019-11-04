@@ -20,7 +20,7 @@ void ReadBuffer(FILE* file, std::string* buffer) {
 
 void ProcessBuffer(const std::string& buffer,
                    std::vector<IndexBuilder>* index_builders) {
-#pragma omp parallel for
+  // #pragma omp parallel for
   for (int i = 0; i < (int)index_builders->size(); ++i) {
     (*index_builders)[i].AddBases(buffer);
   }
@@ -81,11 +81,19 @@ void Write(uint64_t x, FILE* file) {
 }
 
 std::vector<IndexBuilder> IndexFile(int w, const std::vector<int>& K,
-                                    bool debug, FILE* input_file) {
+                                    bool debug, bool variable_hash,
+                                    FILE* input_file) {
   std::vector<IndexBuilder> index_builders;
-  for (int k : K) {
-    index_builders.push_back(IndexBuilder(w, k));
+  for (int i = 0; i < (int)K.size(); ++i) {
+    int perm_hash;
+    if (variable_hash && K.size() > 1) {
+      perm_hash = i * 15 / (K.size() - 1);
+    } else {
+      perm_hash = 0;
+    }
+    index_builders.push_back(IndexBuilder(w, K[i], perm_hash));
   }
+
   std::string buffer;
   buffer.reserve(1e9);
   std::chrono::milliseconds process_time(0);

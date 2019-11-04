@@ -28,8 +28,14 @@ FingerprintBuilder::FingerprintBuilder(const std::string& pattern,
                                        const std::vector<Index>& indexes, int w,
                                        const std::vector<int>& K) {
   std::vector<IndexBuilder> pattern_builders;
-  for (const int k : K) {
-    pattern_builders.emplace_back(w, k);
+  for (int i = 0; i < (int)K.size(); ++i) {
+    int perm_hash;
+    if (K.size() > 1) {
+      perm_hash = i * 15 / (K.size() - 1);
+    } else {
+      perm_hash = 0;
+    }
+    pattern_builders.emplace_back(w, K[i], perm_hash);
   }
   for (const char ch : pattern) {
     for (IndexBuilder& pattern_builder : pattern_builders) {

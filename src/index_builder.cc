@@ -65,8 +65,8 @@ void ProcessFirstWindow(const std::string& window, const int w, const int k,
 
 }  // namespace
 
-IndexBuilder::IndexBuilder(const int w, const int k)
-    : w_(w + k - 1), k_(k), ranker_(k) {}
+IndexBuilder::IndexBuilder(const int w, const int k, const int hash_perm)
+    : w_(w + k - 1), k_(k), ranker_(k, hash_perm) {}
 
 void IndexBuilder::AddBase(char base) {
   ++processed_bases_;

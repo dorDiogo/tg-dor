@@ -13,7 +13,7 @@ using Index = absl::flat_hash_map<int_t, std::vector<int64_t>>;
 
 class IndexBuilder {
  public:
-  IndexBuilder(const int w, const int k);
+  IndexBuilder(const int w, const int k, const int hash_perm);
   void AddBase(char base);
   void AddBases(const std::string& bases);
   const Index& GetIndex() const { return index_; }
