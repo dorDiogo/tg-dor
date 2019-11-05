@@ -10,11 +10,14 @@
 namespace {
 
 void ReadBuffer(FILE* file, std::string* buffer) {
-  char ch;
-  while (buffer->size() < buffer->capacity() && !feof(file)) {
+  int ch;
+  while (buffer->size() < buffer->capacity()) {
     ch = getc_unlocked(file);
+    if (ch == EOF) {
+      break;
+    }
     if (ch != 'A' && ch != 'C' && ch != 'G' && ch != 'T') continue;
-    *buffer += ch;
+    *buffer += (char)ch;
   }
 }
 

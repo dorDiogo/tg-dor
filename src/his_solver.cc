@@ -6,6 +6,14 @@
 #include <limits>
 #include <vector>
 
+void SegmentTree::reset(int n) {
+  n_ = n;
+  for (int i = 0; i < n_; ++i) {
+    tree_[i] = 0;
+    tree_[i + n_] = 0;
+  }
+}
+
 void SegmentTree::update(int pos, int64_t v) {
   pos += n_;
   if (tree_[pos] >= v) return;
@@ -29,7 +37,13 @@ His2DSolver::His2DSolver(std::vector<std::pair<int64_t, int64_t>> v,
     : v_(v),
       weight_(weight),
       dp_(weight.begin(), weight.end()),
-      epsilon_(epsilon) {
+      epsilon_(epsilon),
+      sorted_segment(v.size()),
+      sorted_y(v.size()),
+      segtree(v.size()) {
+  for (int i = 0; i < (int)v.size(); ++i) {
+    sorted_y[i] = v_[i].second;
+  }
   Solve(0, v_.size());
 }
 
@@ -64,54 +78,43 @@ void His2DSolver::Solve(int l, int r) {  // [l, r)
 
 void His2DSolver::Propagate(int l, int r) {
   int m = (l + r) / 2;
-  std::vector<std::pair<int, bool>> sorted_segment = Sort(l, r);
-  std::vector<int64_t> sorted_first_half_y(m - l);
-  for (int i = l; i < m; ++i) {
-    sorted_first_half_y[i - l] = v_[i].second;
-  }
-  std::sort(sorted_first_half_y.begin(), sorted_first_half_y.end());
+  auto left = sorted_y.begin() + l;
+  auto right = sorted_y.begin() + m;
+  std::sort(left, right);
+  SortSegment(l, r);
 
-  SegmentTree segtree(m - l);
+  segtree.reset(m - l);
 
-  for (const auto& it : sorted_segment) {
-    int idx = it.first;
-    int second_half = it.second;
-    if (second_half) {
-      int compressed_y_left = std::upper_bound(sorted_first_half_y.begin(),
-                                               sorted_first_half_y.end(),
-                                               v_[idx].second - epsilon_) -
-                              sorted_first_half_y.begin();
+  for (int i = 0; i < r - l; ++i) {
+    int idx = sorted_segment[i].first;
+    bool is_from_second_half = sorted_segment[i].second;
+    if (is_from_second_half) {
+      int compressed_y_left =
+          std::upper_bound(left, right, v_[idx].second - epsilon_) - left;
 
-      int compressed_y_right = std::lower_bound(sorted_first_half_y.begin(),
-                                                sorted_first_half_y.end(),
-                                                v_[idx].second + epsilon_) -
-                               sorted_first_half_y.begin();
+      int compressed_y_right =
+          std::lower_bound(left, right, v_[idx].second + epsilon_) - left;
 
       dp_[idx] = std::max(
           dp_[idx],
           segtree.query(compressed_y_left, compressed_y_right) + weight_[idx]);
     } else {
-      int compressed_y =
-          std::lower_bound(sorted_first_half_y.begin(),
-                           sorted_first_half_y.end(), v_[idx].second) -
-          sorted_first_half_y.begin();
+      int compressed_y = std::lower_bound(left, right, v_[idx].second) - left;
       segtree.update(compressed_y, dp_[idx]);
     }
   }
 }
 
-std::vector<std::pair<int, bool>> His2DSolver::Sort(int l, int r) {
+void His2DSolver::SortSegment(int l, int r) {
   int m = (l + r) / 2;
-  std::vector<std::pair<int, bool>> sorted_v(r - l);
   for (int i = l; i < r; ++i) {
-    sorted_v[i - l] = {i, i >= m};
+    sorted_segment[i - l] = {i, i >= m};
   }
-  std::sort(sorted_v.begin(), sorted_v.end(),
+  std::sort(sorted_segment.begin(), sorted_segment.begin() + (r - l),
             [&](const std::pair<int, bool>& a, const std::pair<int, bool>& b) {
               if (v_[a.first].first == v_[b.first].first) {
                 return a.second > b.second;
               }
               return v_[a.first] < v_[b.first];
             });
-  return sorted_v;
 }

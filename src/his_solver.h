@@ -9,6 +9,8 @@ class SegmentTree {
  public:
   SegmentTree(int n) : n_(n) { tree_ = std::vector<int64_t>(n_ + n_, 0); }
 
+  void reset(int n);
+
   // Updates value of node at pos to v, if v is greater than the current value.
   void update(int pos, int64_t v);
 
@@ -16,7 +18,7 @@ class SegmentTree {
   int64_t query(int l, int r);
 
  private:
-  const int n_;
+  int n_;
   std::vector<int64_t> tree_;
 };
 
@@ -38,12 +40,16 @@ class His2DSolver {
 
   void Propagate(int l, int r);
 
-  std::vector<std::pair<int, bool>> Sort(int l, int r);
+  void SortSegment(int l, int r);
 
   std::vector<std::pair<int64_t, int64_t>> v_;
   std::vector<int> weight_;
   std::vector<int64_t> dp_;
   int epsilon_;
+
+  std::vector<std::pair<int, bool>> sorted_segment;
+  std::vector<int64_t> sorted_y;
+  SegmentTree segtree;
 };
 
 #endif  // HIS_SOLVER_H
