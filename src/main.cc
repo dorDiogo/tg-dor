@@ -23,6 +23,20 @@ ABSL_FLAG(std::vector<std::string>, K,
 ABSL_FLAG(std::string, text_file, "", "text file for indexing");
 ABSL_FLAG(std::string, patterns_file, "", "patterns file for matching");
 
+// If the last two seeds are too far from each other, it cannot be in the same
+// subsequence as any one of the previous seeds. We can split at the last seed
+// because any further seed added can be solved independently due to their
+// distances.
+bool ShouldSplit(std::vector<std::pair<int64_t, int64_t>>& seeds,
+                 const int pattern_size, const int epsilon) {
+  int n = (int)seeds.size();
+  if (n < 2) return false;
+
+  int last_text_pos = seeds[n - 1].second + seeds[n - 1].first;
+  int second_to_last_text_pos = seeds[n - 2].second + seeds[n - 2].first;
+  return last_text_pos - second_to_last_text_pos > pattern_size + epsilon;
+}
+
 int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
 
@@ -63,24 +77,45 @@ int main(int argc, char* argv[]) {
     std::vector<Fingerprint> fingerprints =
         FingerprintBuilder(pattern, indexes, w, K).GetFingerprint();
 
-    // Format input for his solver.
+    // Solve his.
     std::vector<std::pair<int64_t, int64_t>> seeds;
     std::vector<int> weights;
-    for (const Fingerprint& fingerprint : fingerprints) {
+    std::vector<int> his;
+    int his_weight = 0;
+    for (int i = 0; i < (int)fingerprints.size(); ++i) {
+      const Fingerprint& fingerprint = fingerprints[i];
       seeds.emplace_back(
           fingerprint.pattern_position,
           fingerprint.text_position - fingerprint.pattern_position);
       weights.push_back(fingerprint.weight);
+      if (i + 1 == (int)fingerprints.size() ||
+          ShouldSplit(seeds, pattern.size(), epsilon)) {
+        if (seeds.size() > his.size()) {
+          // Solve his for current fingerprints, and save best answer.
+          His2DSolver his_solver(seeds, weights, epsilon);
+          if (his_solver.Weight() > his_weight) {
+            his_weight = his_solver.Weight();
+            his = his_solver.His();
+            int shift = i + 1 - (int)seeds.size();
+            for (int& position : his) {
+              position += shift;
+            }
+          }
+        }
+        // Clear processed seeds. The last seed belongs to the next segment,
+        // since it was the one too far from all the others.
+        seeds.clear();
+        weights.clear();
+        seeds.emplace_back(
+            fingerprint.pattern_position,
+            fingerprint.text_position - fingerprint.pattern_position);
+        weights.push_back(fingerprint.weight);
+      }
     }
-
-    // Solve his.
-    His2DSolver his_solver(seeds, weights, epsilon);
 
     auto end = std::chrono::high_resolution_clock::now();
     process_time +=
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    std::vector<int> his = his_solver.His();
 
     std::cout << his.size() << std::endl;
 

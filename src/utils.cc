@@ -23,7 +23,7 @@ void ReadBuffer(FILE* file, std::string* buffer) {
 
 void ProcessBuffer(const std::string& buffer,
                    std::vector<IndexBuilder>* index_builders) {
-  // #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < (int)index_builders->size(); ++i) {
     (*index_builders)[i].AddBases(buffer);
   }

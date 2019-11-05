@@ -128,7 +128,7 @@ def Analyze():
             count += 1
             total_covered_positions += CountTrue(covered_positions)
         # else:
-            #print(his, CountTrue(covered_positions), i)
+        #     print(his, CountTrue(covered_positions), i)
     print(
         f"Average coverage per correctly matched pattern: {total_covered_positions/count}")
     print(f"Correctly matched patterns: {count}/{experiments}")

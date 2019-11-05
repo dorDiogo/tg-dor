@@ -115,6 +115,6 @@ void His2DSolver::SortSegment(int l, int r) {
               if (v_[a.first].first == v_[b.first].first) {
                 return a.second > b.second;
               }
-              return v_[a.first] < v_[b.first];
+              return v_[a.first].first < v_[b.first].first;
             });
 }
