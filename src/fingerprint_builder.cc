@@ -29,13 +29,8 @@ FingerprintBuilder::FingerprintBuilder(const std::string& pattern,
                                        const std::vector<int>& K) {
   std::vector<IndexBuilder> pattern_builders;
   for (int i = 0; i < (int)K.size(); ++i) {
-    int perm_hash;
-    if (K.size() > 1) {
-      perm_hash = i * 15 / (K.size() - 1);
-    } else {
-      perm_hash = 0;
-    }
-    pattern_builders.emplace_back(w, K[i], perm_hash);
+    int hash_cycle = i;
+    pattern_builders.emplace_back(w, K[i], hash_cycle);
   }
   for (const char ch : pattern) {
     for (IndexBuilder& pattern_builder : pattern_builders) {
@@ -66,6 +61,7 @@ FingerprintBuilder::FingerprintBuilder(const std::string& pattern,
           fingerprints_.emplace_back(text_occurrence, pattern_occurrence, K[i]);
         }
       }
+      break;
     }
   }
   sort(fingerprints_.begin(), fingerprints_.end());

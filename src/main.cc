@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
   // Match patterns.
   std::string pattern;
   int patterns_qty = 0;
+  int64_t total_fingerprints = 0;
   std::chrono::milliseconds process_time(0);
   while ((pattern = ReadPattern(patterns_file)) != "") {
     ++patterns_qty;
@@ -76,7 +77,7 @@ int main(int argc, char* argv[]) {
     // Build fingerprints.
     std::vector<Fingerprint> fingerprints =
         FingerprintBuilder(pattern, indexes, w, K).GetFingerprint();
-
+    total_fingerprints += fingerprints.size();
     // Solve his.
     std::vector<std::pair<int64_t, int64_t>> seeds;
     std::vector<int> weights;
@@ -129,6 +130,8 @@ int main(int argc, char* argv[]) {
             << std::endl;
   std::cerr << "Process time per pattern: "
             << process_time.count() / 1000. / patterns_qty << "s" << std::endl;
+  std::cerr << "Average fingerprints per pattern: "
+            << total_fingerprints / patterns_qty << std::endl;
 
   fclose(text_file);
   fclose(patterns_file);

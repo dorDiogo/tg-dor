@@ -88,13 +88,8 @@ std::vector<IndexBuilder> IndexFile(int w, const std::vector<int>& K,
                                     FILE* input_file) {
   std::vector<IndexBuilder> index_builders;
   for (int i = 0; i < (int)K.size(); ++i) {
-    int perm_hash;
-    if (variable_hash && K.size() > 1) {
-      perm_hash = i * 15 / (K.size() - 1);
-    } else {
-      perm_hash = 0;
-    }
-    index_builders.push_back(IndexBuilder(w, K[i], perm_hash));
+    int hash_cycle = variable_hash ? i : 0;
+    index_builders.push_back(IndexBuilder(w, K[i], hash_cycle));
   }
 
   std::string buffer;

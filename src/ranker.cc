@@ -1,19 +1,17 @@
 #include "ranker.h"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <vector>
 
-Ranker::Ranker(const int k, const int hash_perm)
+Ranker::Ranker(const int k, const int hash_cycle)
     : power_of_k_(int_t(1) << (2 * (k - 1))) {
   std::vector<int> hash_values({0, 1, 2, 3});
-  for (int i = 0; i < hash_perm; ++i) {
-    std::next_permutation(hash_values.begin(), hash_values.end());
-  }
-  base_rank[(int)'A'] = hash_values[0];
-  base_rank[(int)'C'] = hash_values[1];
-  base_rank[(int)'G'] = hash_values[2];
-  base_rank[(int)'T'] = hash_values[3];
+  base_rank[(int)'A'] = hash_values[(0 + hash_cycle) % 4];
+  base_rank[(int)'C'] = hash_values[(1 + hash_cycle) % 4];
+  base_rank[(int)'G'] = hash_values[(2 + hash_cycle) % 4];
+  base_rank[(int)'T'] = hash_values[(3 + hash_cycle) % 4];
 }
 
 int_t Ranker::GetKMerRank(const std::string& k_mer) const {
