@@ -1,0 +1,6 @@
+/bin
+/data
+/.vscode
+.DS_Store
+*out
+*bazel-*
